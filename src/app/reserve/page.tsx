@@ -1,33 +1,67 @@
 // src/app/reserve/page.tsx
-
-"use client"; // <-- Dodaj to na górze pliku
+"use client";
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-datepicker/dist/react-datepicker.css';
+import "leaflet/dist/leaflet.css";
 import DatePicker from 'react-datepicker';
-import { LatLngExpression } from 'leaflet';
+import { LatLng, LatLngExpression } from 'leaflet';
+import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
 
-// Importujemy mapę, aby uniknąć problemów z SSR (Server-Side Rendering)
+
 const Map = dynamic(() => import('../../components/Map'), { ssr: false });
 
-const ReservePage: React.FC = () => {
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [location, setLocation] = useState<LatLngExpression>([51.505, -0.09]);
+const locations = spotsData.map(element => ({
+  location: [element.location[0], element.location[1]],
+}));
 
-  const handleConfirm = () => {
-    console.log('Data:', startDate);
-    console.log('End Data:', endDate);
-    console.log('Location:', location);
+console.log(locations)
+
+const ReservePage: React.FC = () => {
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
+  const [markers, setMarkers] = useState<LatLngExpression[]>([
+    locations
+  ]);
+
+  const handleConfirm = async () => {
+    const reservationData = {
+      startDate,
+      endDate,
+      location: selectedLocation,
+    };
+
+    try {
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reservationData),
+      });
+
+      if (response.ok) {
+        console.log('Reservation saved successfully');
+      } else {
+        console.error('Failed to save reservation');
+      }
+    } catch (error) {
+      console.error('Error saving reservation:', error);
+    }
+  };
+
+  const handleMarkerSelect = (location: LatLngExpression) => {
+    setSelectedLocation(location);
   };
 
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold mb-4">Rezerwacja miejsca parkingowego</h1>
 
-      <div className="h-80">
-        <Map location={location} />
+      <div className="relative h-80 w-full overflow-hidden rounded-md border">
+        <Map locations={markers} onMarkerSelect={handleMarkerSelect} />
       </div>
 
       <div className="space-y-4">
@@ -36,7 +70,7 @@ const ReservePage: React.FC = () => {
           <div className="flex space-x-4">
             <DatePicker
               selected={startDate}
-              onChange={(date: Date | undefined) => setStartDate(date)}
+              onChange={(date: Date | null) => setStartDate(date || new Date())}
               selectsStart
               startDate={startDate}
               endDate={endDate}
@@ -46,7 +80,7 @@ const ReservePage: React.FC = () => {
             />
             <DatePicker
               selected={endDate}
-              onChange={(date: Date | undefined) => setEndDate(date)}
+              onChange={(date: Date | null) => setEndDate(date || new Date())}
               selectsEnd
               startDate={startDate}
               endDate={endDate}

@@ -1,0 +1,26 @@
+[
+    {
+        "spotname" : "Rektorat",
+        "location" : [
+            51.9365489923256, 15.507054325024148
+          ],
+        "totalSpaces" : 3,
+        "occupiesSpaces" : 1
+    },
+    {
+        "spotname" : "Uniwersytet campus A",
+        "location" : [
+            51.941904472566435, 15.531105850181563
+          ],
+        "totalSpaces" : 10,
+        "occupiesSpaces" : 4
+    },
+    {
+        "spotname" : "Uniwersytet campus B",
+        "location" : [
+            51.939383, 15.474234
+          ],
+        "totalSpaces" : 10,
+        "occupiesSpaces" : 10
+    }
+]
