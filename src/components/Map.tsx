@@ -6,48 +6,55 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
+// Function to create a custom icon with available and total spaces
+const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
+  return new L.DivIcon({
+    className: 'my-div-icon',
+    html: `
+      <div style="text-align: center;">
+        <img class="my-div-image" src="/image.png" style="width: 30px; height: 40px;"/>
+        <span class="my-div-span" style="display: block;">Available: ${availableSpaces}</span>
+        <span class="my-div-span" style="display: block;">Total: ${totalSpaces}</span>
+      </div>
+    `,
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -40]
+  });
+};
 
-// Konfiguracja niestandardowej pinezki
-const customIcon = new L.Icon({
-  iconUrl: '/image.png', // Ścieżka do obrazu pinezki
-  iconSize: [30, 40], // Rozmiar ikony
-  iconAnchor: [15, 40], // Punkt zakotwiczenia ikony (środek dolnej krawędzi)
-  popupAnchor: [0, -40] // Punkt zakotwiczenia popupu w stosunku do ikony
-});
-
-
-
-var myIcon = L.divIcon({className: 'my-div-icon', 
-  html: '<img class="my-div-image" src="http://png-3.vector.me/files/images/4/0/402272/aiga_air_transportation_bg_thumb"/>'+
-  '<span class="my-div-span">sie ogarnie</span>'});
+// Map the spotsData to extract necessary information
+const locations = spotsData.map(element => ({
+  location: [element.location[0], element.location[1]] as LatLngExpression,
+  spotname: element.spotname,
+  totalSpaces: element.totalSpaces,
+  availableSpaces: element.totalSpaces - element.occupiesSpaces
+}));
 
 interface MapProps {
-  locations: LatLngExpression[];
-  onMarkerSelect: (location: LatLngExpression) => void; // Callback po wyborze markera
+  onMarkerSelect: (location: LatLngExpression) => void;
 }
 
-const Map: React.FC<MapProps> = ({ locations, onMarkerSelect }) => {
+const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
   return (
     <MapContainer center={[51.935619, 15.506186]} zoom={14} className="h-full w-full">
-      {/* Warstwa kafelkowa OpenStreetMap */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-
-      {/* Renderowanie wielu markerów */}
-      {locations.map((location, index) => (
-        <Marker 
-          key={index} 
-          position={location} 
-          icon={myIcon} 
-          title = "parking"
+      {locations.map((loc, index) => (
+        <Marker
+          key={index}
+          position={loc.location}
+          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces)} // Pass total spaces to the function
           eventHandlers={{
-            click: () => onMarkerSelect(location), // Obsługa kliknięcia na marker
+            click: () => onMarkerSelect(loc.location),
           }}
         >
           <Popup>
-            <p>Punkt {index + 1}</p>
+            <p>Parking spot: {loc.spotname}</p>
+            <p>Available spaces: {loc.availableSpaces}</p>
+            <p>Total spaces: {loc.totalSpaces}</p>
           </Popup>
         </Marker>
       ))}

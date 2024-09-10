@@ -12,9 +12,8 @@ import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.j
 
 const Map = dynamic(() => import('../../components/Map'), { ssr: false });
 
-const locations = spotsData.map(element => ({
-  location: [element.location[0], element.location[1]],
-}));
+// Extract the locations correctly
+const locations: LatLngExpression[] = spotsData.map(element => [element.location[0], element.location[1]]);
 
 console.log(locations)
 
@@ -22,14 +21,17 @@ const ReservePage: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
-  const [markers, setMarkers] = useState<LatLngExpression[]>([
-    locations
-  ]);
+  const [markers, setMarkers] = useState<LatLngExpression[]>(locations);
 
   const handleConfirm = async () => {
+
+    console.log(`Selected Start Date (Local): ${startDate.toLocaleString()}`);
+    console.log(`Selected End Date (Local): ${endDate.toLocaleString()}`);
+    console.log(`Time Zone Offset (minutes): ${startDate.getTimezoneOffset()}`);
+
     const reservationData = {
-      startDate,
-      endDate,
+      startDate: startDate.toLocaleString(),
+      endDate: endDate.toLocaleString(),
       location: selectedLocation,
     };
 
@@ -60,8 +62,8 @@ const ReservePage: React.FC = () => {
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold mb-4">Rezerwacja miejsca parkingowego</h1>
 
-      <div className="relative h-80 w-full overflow-hidden rounded-md border">
-        <Map locations={markers} onMarkerSelect={handleMarkerSelect} />
+      <div className="relative h-[50vh] w-full overflow-hidden rounded-md border">
+        <Map  onMarkerSelect={handleMarkerSelect} />
       </div>
 
       <div className="space-y-4">
