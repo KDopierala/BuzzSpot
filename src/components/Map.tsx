@@ -1,12 +1,11 @@
 // components/Map.tsx
 "use client";
 
-import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
-// Function to create a custom icon with available and total spaces
+
 const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
   return new L.DivIcon({
     className: 'my-div-icon',
@@ -14,7 +13,6 @@ const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
       <div style="text-align: center;">
         <img class="my-div-image" src="/image.png" style="width: 30px; height: 40px;"/>
         <span class="my-div-span" style="display: block;">Available: ${availableSpaces}</span>
-        <span class="my-div-span" style="display: block;">Total: ${totalSpaces}</span>
       </div>
     `,
     iconSize: [30, 40],
@@ -46,7 +44,7 @@ const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
         <Marker
           key={index}
           position={loc.location}
-          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces)} // Pass total spaces to the function
+          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces)}
           eventHandlers={{
             click: () => onMarkerSelect(loc.location),
           }}

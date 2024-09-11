@@ -1,4 +1,3 @@
-// src/app/reserve/page.tsx
 "use client";
 
 import { useState } from 'react';
@@ -6,32 +5,44 @@ import dynamic from 'next/dynamic';
 import 'react-datepicker/dist/react-datepicker.css';
 import "leaflet/dist/leaflet.css";
 import DatePicker from 'react-datepicker';
-import { LatLng, LatLngExpression } from 'leaflet';
+import { LatLngExpression } from 'leaflet';
 import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
-
+import ReservationPopup from '../../components/ReservationPopup'; // Importowanie komponentu popupu
 
 const Map = dynamic(() => import('../../components/Map'), { ssr: false });
 
-// Extract the locations correctly
 const locations: LatLngExpression[] = spotsData.map(element => [element.location[0], element.location[1]]);
-
-console.log(locations)
 
 const ReservePage: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
-  const [markers, setMarkers] = useState<LatLngExpression[]>(locations);
+  // const [markers, setMarkers] = useState<LatLngExpression[]>(locations);
+  const [showPopup, setShowPopup] = useState(false);
+  const [spotname, setSpotname] = useState<string>('');
 
   const handleConfirm = async () => {
+    if (!selectedLocation) {
+      alert('Proszę wybrać lokalizację');
+      return;
+    }
 
-    console.log(`Selected Start Date (Local): ${startDate.toLocaleString()}`);
-    console.log(`Selected End Date (Local): ${endDate.toLocaleString()}`);
-    console.log(`Time Zone Offset (minutes): ${startDate.getTimezoneOffset()}`);
+    const selectedSpot = spotsData.find(spot => 
+      JSON.stringify(spot.location) === JSON.stringify(selectedLocation)
+    );
+    
+
+    if (!selectedSpot) {
+      alert('Wybrane miejsce nie zostało znalezione');
+      return;
+    }
+
+    setSpotname(selectedSpot.spotname);
 
     const reservationData = {
       startDate: startDate.toLocaleString(),
       endDate: endDate.toLocaleString(),
+      spotname: selectedSpot.spotname,
       location: selectedLocation,
     };
 
@@ -46,6 +57,7 @@ const ReservePage: React.FC = () => {
 
       if (response.ok) {
         console.log('Reservation saved successfully');
+        setShowPopup(true); 
       } else {
         console.error('Failed to save reservation');
       }
@@ -62,11 +74,11 @@ const ReservePage: React.FC = () => {
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold mb-4">Rezerwacja miejsca parkingowego</h1>
 
-      <div className="relative h-[50vh] w-full overflow-hidden rounded-md border">
-        <Map  onMarkerSelect={handleMarkerSelect} />
+      <div className="relative h-[70vh] w-full overflow-hidden rounded-md border">
+        <Map onMarkerSelect={handleMarkerSelect} />
       </div>
 
-      <div className="space-y-4">
+      <div className="relative space-y-4 z-[901]">
         <div>
           <label className="block text-lg font-medium mb-2">Wybierz datę i czas:</label>
           <div className="flex space-x-4">
@@ -79,6 +91,9 @@ const ReservePage: React.FC = () => {
               showTimeSelect
               dateFormat="Pp"
               className="border rounded p-2 w-full"
+              minDate={new Date()}
+              timeIntervals={15}
+              customInput={<input readOnly className="border rounded p-2 w-full" />}
             />
             <DatePicker
               selected={endDate}
@@ -86,10 +101,12 @@ const ReservePage: React.FC = () => {
               selectsEnd
               startDate={startDate}
               endDate={endDate}
-              minDate={startDate}
+              minDate={new Date()}
+              customInput={<input disabled className="border rounded p-2 w-full" />}
               showTimeSelect
               dateFormat="Pp"
               className="border rounded p-2 w-full"
+              timeIntervals={15}
             />
           </div>
         </div>
@@ -101,6 +118,15 @@ const ReservePage: React.FC = () => {
           Potwierdź rezerwację
         </button>
       </div>
+
+      {showPopup && (
+        <ReservationPopup
+          spotname={spotname}
+          startDate={startDate}
+          endDate={endDate}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </div>
   );
 };
