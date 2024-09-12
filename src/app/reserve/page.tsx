@@ -1,25 +1,48 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-datepicker/dist/react-datepicker.css';
 import "leaflet/dist/leaflet.css";
 import DatePicker from 'react-datepicker';
 import { LatLngExpression } from 'leaflet';
-import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
 import ReservationPopup from '../../components/ReservationPopup'; // Importowanie komponentu popupu
 
 const Map = dynamic(() => import('../../components/Map'), { ssr: false });
-
-const locations: LatLngExpression[] = spotsData.map(element => [element.location[0], element.location[1]]);
 
 const ReservePage: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
-  // const [markers, setMarkers] = useState<LatLngExpression[]>(locations);
   const [showPopup, setShowPopup] = useState(false);
   const [spotname, setSpotname] = useState<string>('');
+  const [spotsData, setSpotsData] = useState<any[]>([]); // Dodanie stanu na przechowywanie danych z API
+
+  // Funkcja do pobierania danych z API
+  useEffect(() => {
+    fetch('/api/spots', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json(); // Przetworzenie odpowiedzi jako JSON
+        } else {
+          throw new Error('Nie udało się pobrać danych z API');
+        }
+      })
+      .then(data => {
+        console.log('Dane z API:', data);
+        setSpotsData(data); // Zapisanie danych w stanie
+      })
+      .catch(error => {
+        console.error('Błąd podczas pobierania danych z API:', error);
+      });
+  }, []);
+
+  const locations: LatLngExpression[] = spotsData.map(element => [element.location[0], element.location[1]]);
 
   const handleConfirm = async () => {
     if (!selectedLocation) {
@@ -30,7 +53,6 @@ const ReservePage: React.FC = () => {
     const selectedSpot = spotsData.find(spot => 
       JSON.stringify(spot.location) === JSON.stringify(selectedLocation)
     );
-    
 
     if (!selectedSpot) {
       alert('Wybrane miejsce nie zostało znalezione');
@@ -101,7 +123,7 @@ const ReservePage: React.FC = () => {
               selectsEnd
               startDate={startDate}
               endDate={endDate}
-              minDate={new Date()}
+              minDate={startDate}
               customInput={<input disabled className="border rounded p-2 w-full" />}
               showTimeSelect
               dateFormat="Pp"
