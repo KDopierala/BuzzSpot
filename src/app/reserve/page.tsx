@@ -42,7 +42,6 @@ const ReservePage: React.FC = () => {
       });
   }, []);
 
-  const locations: LatLngExpression[] = spotsData.map(element => [element.location[0], element.location[1]]);
 
   const handleConfirm = async () => {
     if (!selectedLocation) {

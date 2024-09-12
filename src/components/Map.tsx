@@ -6,7 +6,7 @@ import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Funkcja do tworzenia niestandardowej ikony
-const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
+const createCustomIcon = (availableSpaces: number) => {
   return new L.DivIcon({
     className: 'my-div-icon',
     html: `
@@ -68,7 +68,7 @@ const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
         <Marker
           key={index}
           position={loc.location}
-          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces)}
+          icon={createCustomIcon(loc.availableSpaces)}
           eventHandlers={{
             click: () => onMarkerSelect(loc.location),
           }}
