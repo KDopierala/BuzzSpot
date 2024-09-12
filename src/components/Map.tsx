@@ -1,11 +1,11 @@
-// components/Map.tsx
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import spotsData from 'C:/Users/krystian.dopierala/Desktop/buzzspot/data/spots.json';
 
+// Funkcja do tworzenia niestandardowej ikony
 const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
   return new L.DivIcon({
     className: 'my-div-icon',
@@ -17,23 +17,47 @@ const createCustomIcon = (availableSpaces: number, totalSpaces: number) => {
     `,
     iconSize: [30, 40],
     iconAnchor: [15, 40],
-    popupAnchor: [0, -40]
+    popupAnchor: [0, -40],
   });
 };
-
-// Map the spotsData to extract necessary information
-const locations = spotsData.map(element => ({
-  location: [element.location[0], element.location[1]] as LatLngExpression,
-  spotname: element.spotname,
-  totalSpaces: element.totalSpaces,
-  availableSpaces: element.totalSpaces - element.occupiesSpaces
-}));
 
 interface MapProps {
   onMarkerSelect: (location: LatLngExpression) => void;
 }
 
 const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
+  const [locations, setLocations] = useState<any[]>([]); // Stan do przechowywania danych o lokalizacjach
+
+  // Pobieranie danych z API przy użyciu efektu
+  useEffect(() => {
+    fetch('/api/spots', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json(); // Przetworzenie odpowiedzi jako JSON
+        } else {
+          throw new Error('Nie udało się pobrać danych z API');
+        }
+      })
+      .then(data => {
+        // Przekształcenie danych z API na format odpowiedni do wykorzystania w mapie
+        const mappedLocations = data.map((element: any) => ({
+          location: [element.location[0], element.location[1]] as LatLngExpression,
+          spotname: element.spotname,
+          totalSpaces: element.totalSpaces,
+          availableSpaces: element.totalSpaces - element.occupiesSpaces,
+        }));
+        setLocations(mappedLocations); // Zapisanie przekształconych danych w stanie
+      })
+      .catch(error => {
+        console.error('Błąd podczas pobierania danych z API:', error);
+      });
+  }, []);
+
   return (
     <MapContainer center={[51.935619, 15.506186]} zoom={14} className="h-full w-full">
       <TileLayer
