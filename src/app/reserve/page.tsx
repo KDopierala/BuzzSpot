@@ -6,7 +6,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import "leaflet/dist/leaflet.css";
 import DatePicker from 'react-datepicker';
 import { LatLngExpression } from 'leaflet';
-import ReservationPopup from '../../components/ReservationPopup'; // Importowanie komponentu popupu
+import ReservationPopup from '../../components/ReservationPopup';
+import { SpotData } from '@/types'; // Import interfejsów
 
 const Map = dynamic(() => import('../../components/Map'), { ssr: false });
 
@@ -16,9 +17,8 @@ const ReservePage: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [spotname, setSpotname] = useState<string>('');
-  const [spotsData, setSpotsData] = useState<any[]>([]); // Dodanie stanu na przechowywanie danych z API
+  const [spotsData, setSpotsData] = useState<SpotData[]>([]); // Zaktualizowany typ stanu
 
-  // Funkcja do pobierania danych z API
   useEffect(() => {
     fetch('/api/spots', {
       method: 'GET',
@@ -28,20 +28,19 @@ const ReservePage: React.FC = () => {
     })
       .then(response => {
         if (response.ok) {
-          return response.json(); // Przetworzenie odpowiedzi jako JSON
+          return response.json();
         } else {
           throw new Error('Nie udało się pobrać danych z API');
         }
       })
-      .then(data => {
+      .then((data: SpotData[]) => { // Zaktualizowany typ danych
         console.log('Dane z API:', data);
-        setSpotsData(data); // Zapisanie danych w stanie
+        setSpotsData(data);
       })
       .catch(error => {
         console.error('Błąd podczas pobierania danych z API:', error);
       });
   }, []);
-
 
   const handleConfirm = async () => {
     if (!selectedLocation) {
@@ -78,7 +77,7 @@ const ReservePage: React.FC = () => {
 
       if (response.ok) {
         console.log('Reservation saved successfully');
-        setShowPopup(true); 
+        setShowPopup(true);
       } else {
         console.error('Failed to save reservation');
       }

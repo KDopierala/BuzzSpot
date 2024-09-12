@@ -196,5 +196,23 @@
       51.939383,
       15.474234
     ]
+  },
+  {
+    "startDate": "9/26/2024, 11:55:34 AM",
+    "endDate": "9/26/2024, 12:00:00 PM",
+    "spotname": "Uniwersytet campus A",
+    "location": [
+      51.941904472566435,
+      15.531105850181563
+    ]
+  },
+  {
+    "startDate": "9/19/2024, 11:59:07 AM",
+    "endDate": "9/26/2024, 11:45:00 AM",
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
   }
 ]
