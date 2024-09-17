@@ -214,5 +214,182 @@
       51.939383,
       15.474234
     ]
+  },
+  {
+    "startDate": "9/12/2024, 11:30:00 AM",
+    "endDate": "9/12/2024, 7:00:00 AM",
+    "spotname": "Uniwersytet campus A",
+    "location": [
+      51.941904472566435,
+      15.531105850181563
+    ]
+  },
+  {
+    "startDate": "9/12/2024, 1:50:30 PM",
+    "endDate": "9/12/2024, 2:15:00 PM",
+    "spotname": "Uniwersytet campus A",
+    "location": [
+      51.941904472566435,
+      15.531105850181563
+    ]
+  },
+  {
+    "startDate": "9/12/2024, 1:30:00 PM",
+    "endDate": "9/12/2024, 1:30:00 PM",
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "startDate": "9/17/2024, 11:15:00 AM",
+    "endDate": "9/17/2024, 11:30:00 AM",
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "startDate": "9/17/2024, 11:15:00 AM",
+    "endDate": "9/17/2024, 12:00:00 PM",
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "startDate": "9/17/2024, 11:45:00 AM",
+    "endDate": "9/17/2024, 12:00:00 PM",
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "startDate": "9/17/2024, 11:45:00 AM",
+    "endDate": "9/17/2024, 12:00:00 PM",
+    "spotname": "Uniwersytet campus A",
+    "location": [
+      51.941904472566435,
+      15.531105850181563
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "startDate": "9/17/2024, 12:00:00 AM",
+    "endDate": "9/17/2024, 12:45:00 PM",
+    "spotname": "Rektorat",
+    "location": [
+      51.9365489923256,
+      15.507054325024148
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
+  },
+  {
+    "spotname": "Uniwersytet campus B",
+    "location": [
+      51.939383,
+      15.474234
+    ]
   }
 ]

@@ -1,7 +1,7 @@
 // types.ts
 export interface SpotData {
     spotname: string;
-    location: [number, number]; // Tuple z dwoma liczbami (latitude, longitude)
+    location: [number, number];
     totalSpaces: number;
     occupiesSpaces: number;
   }
