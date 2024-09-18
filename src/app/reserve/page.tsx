@@ -20,10 +20,9 @@ const ReservePage: React.FC = () => {
   const [spotname, setSpotname] = useState<string>("");
   const [spotsData, setSpotsData] = useState<SpotData[]>([]);
 
-  // Resetowanie showPopup, gdy zmieniają się daty
   useEffect(() => {
     if (startDate && endDate) {
-      setShowPopup(false); // Ukryj komunikat, gdy obie daty są ustawione
+      setShowPopup(false); 
     }
   }, [startDate, endDate]);
 
@@ -181,7 +180,7 @@ const ReservePage: React.FC = () => {
           spotname={spotname}
           startDate={startDate}
           endDate={endDate}
-          onClose={() => setShowPopup(true)}
+          onClose={() => setShowPopup(false)}
         />
       ) : (
         !startDate ||
