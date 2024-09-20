@@ -11,4 +11,5 @@ export interface LocationData {
     spotname: string;
     totalSpaces: number;
     availableSpaces: number;
+    imgPath: string;
   }

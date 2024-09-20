@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { calculatePrice, calculateParkingDuration } from '@/utils/priceCaclc';
+import NavMenu from '@/components/Navigation'; // Adjust the path if necessary
 
 interface Reservation {
   id: string; // Dodajemy id rezerwacji
@@ -17,6 +18,7 @@ const ReservationsPage = () => {
     direction: 'ascending'
   });
   const currentDate = new Date();
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     fetch("/api/reservations", {
@@ -58,7 +60,10 @@ const ReservationsPage = () => {
       }
     } catch (error) {
       console.error("Błąd:", error);
-    }
+    } finally {
+      console.log("finally block")
+      // window.location.href = "/settings";
+      setRefresh(!refresh);} // This forces a re-render
   };
   
 
@@ -96,7 +101,12 @@ const ReservationsPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Lista rezerwacji</h1>
+            <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold mb-4">
+          Lista rezerwacji
+        </h1>
+        <NavMenu />
+      </div>
 
       {reservations.length > 0 ? (
         <table className="min-w-full table-auto border-collapse border border-gray-400">
@@ -117,7 +127,7 @@ const ReservationsPage = () => {
               <th className="border p-2 cursor-pointer" onClick={() => requestSort('price')}>
                 Opłacona kwota {sortConfig.key === 'price' ? (sortConfig.direction === 'ascending' ? '▲' : '▼') : null}
               </th>
-              <th className="border p-2">Akcje</th>
+              <th className="border p-2">Anuluj</th>
             </tr>
           </thead>
           <tbody>

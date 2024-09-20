@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { calculatePrice, calculateParkingDuration } from '@/utils/priceCaclc';
+import { useEffect, useState } from "react";
+import { calculatePrice, calculateParkingDuration } from "@/utils/priceCaclc";
+import NavMenu from '@/components/Navigation'; // Adjust the path if necessary
 
 interface Reservation {
   spotname: string;
@@ -29,7 +30,9 @@ const HistoricalReservationsPage = () => {
       })
       .then((data: Reservation[]) => {
         // Filtrowanie historycznych rezerwacji
-        const historicalReservations = data.filter(reservation => new Date(reservation.endDate) <= currentDate);
+        const historicalReservations = data.filter(
+          (reservation) => new Date(reservation.endDate) <= currentDate
+        );
         setReservations(historicalReservations);
       })
       .catch((error) => {
@@ -39,7 +42,12 @@ const HistoricalReservationsPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Historyczne rezerwacje</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold mb-4">
+          Historia rezerwacji
+        </h1>
+        <NavMenu />
+      </div>
 
       {reservations.length > 0 ? (
         <table className="min-w-full table-auto border-collapse border border-gray-400">
@@ -56,7 +64,10 @@ const HistoricalReservationsPage = () => {
             {reservations.map((reservation, index) => {
               const startDate = new Date(reservation.startDate);
               const endDate = new Date(reservation.endDate);
-              const { hours, minutes } = calculateParkingDuration(startDate, endDate);
+              const { hours, minutes } = calculateParkingDuration(
+                startDate,
+                endDate
+              );
               const price = calculatePrice(startDate, endDate);
 
               return (
@@ -64,7 +75,9 @@ const HistoricalReservationsPage = () => {
                   <td className="border p-2">{reservation.spotname}</td>
                   <td className="border p-2">{startDate.toLocaleString()}</td>
                   <td className="border p-2">{endDate.toLocaleString()}</td>
-                  <td className="border p-2">{hours} godz. {minutes} min.</td>
+                  <td className="border p-2">
+                    {hours} godz. {minutes} min.
+                  </td>
                   <td className="border p-2">{price} zł</td>
                 </tr>
               );

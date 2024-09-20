@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import { LatLngExpression } from "leaflet";
 import ReservationPopup from "../../components/ReservationPopup";
 import { SpotData } from "@/types";
+import NavMenu from "@/components/Navigation"; // Adjust the path if necessary
 
 const Map = dynamic(() => import("../../components/Map"), { ssr: false });
 
@@ -19,12 +20,12 @@ const ReservePage: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [spotname, setSpotname] = useState<string>("");
   const [spotsData, setSpotsData] = useState<SpotData[]>([]);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  
 
-  useEffect(() => {
-    if (startDate && endDate) {
-      setShowPopup(false); 
-    }
-  }, [startDate, endDate]);
+
+
 
   useEffect(() => {
     fetch("/api/spots", {
@@ -67,11 +68,19 @@ const ReservePage: React.FC = () => {
 
     setSpotname(selectedSpot.spotname);
 
+    if(selectedSpot){
+      setLatitude(selectedSpot.location[0])
+      setLongitude(selectedSpot.location[1])
+
+    }
+
     const reservationData = {
-      startDate: startDate?.toLocaleString(), // Użycie opcjonalnego chainingu
-      endDate: endDate?.toLocaleString(), // Użycie opcjonalnego chainingu
+      startDate: startDate?.toLocaleString(),
+      endDate: endDate?.toLocaleString(),
       spotname: selectedSpot.spotname,
-      location: selectedLocation,
+      // location: selectedLocation,
+      Lat: latitude,
+      Long: longitude
     };
 
     try {
@@ -104,18 +113,20 @@ const ReservePage: React.FC = () => {
   };
 
   const filterEndTime = (date: Date) => {
-    // Sprawdza, czy czas zakończenia jest późniejszy niż czas rozpoczęcia, jeśli startDate istnieje
     if (startDate) {
       return startDate.getTime() <= date.getTime();
     }
-    return true; // Domyślnie pozwala na wybór jakiegokolwiek czasu, jeśli startDate nie jest ustawiona
+    return true; 
   };
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold mb-4">
-        Rezerwacja miejsca parkingowego
-      </h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold mb-4">
+          Rezerwacja miejsca parkingowego
+        </h1>
+        <NavMenu />
+      </div>
 
       <div className="relative h-[70vh] w-full overflow-hidden rounded-md border">
         <Map onMarkerSelect={handleMarkerSelect} />
@@ -164,11 +175,11 @@ const ReservePage: React.FC = () => {
 
         <button
           onClick={handleConfirm}
-          disabled={!startDate || !endDate} 
+          disabled={!startDate || !endDate}
           className={`py-2 px-4 rounded transition-colors text-white ${
             startDate && endDate
-              ? "bg-blue-500 hover:bg-blue-600" 
-              : "bg-gray-400 cursor-not-allowed opacity-50" 
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-gray-400 cursor-not-allowed opacity-50"
           }`}
         >
           Potwierdź rezerwację
