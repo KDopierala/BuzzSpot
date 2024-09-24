@@ -1,31 +1,60 @@
 // src/app/api/reservations/route.ts
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'reservations.json');
+import { supabase } from '@/lib/supabaseClient'; // Import Supabase client
 
 export async function GET() {
   try {
-    const data = fs.readFileSync(dataFilePath, 'utf8');
-    const reservations = JSON.parse(data);
-    return NextResponse.json(reservations);
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('*');
+
+    if (error) throw error;
+    return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to read data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
     const newReservation = await request.json();
-    const data = fs.readFileSync(dataFilePath, 'utf8');
-    const reservations = JSON.parse(data);
+    
+    // Dodanie UUID do nowej rezerwacji
+    const reservationWithId = {
+      ...newReservation,
+    };
 
-    reservations.push(newReservation);
-    fs.writeFileSync(dataFilePath, JSON.stringify(reservations, null, 2));
+    const { data, error } = await supabase
+      .from('reservations')
+      .insert([reservationWithId]);
 
-    return NextResponse.json(newReservation);
+    if (error) {
+      throw error;
+    }
+    // console.log(reservationWithId)
+    return NextResponse.json(data);
   } catch (error) {
+    console.error('POST error:', error);
     return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    const { data, error } = await supabase
+      .from('reservations')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    if (!data) {
+      return NextResponse.json({ error: 'Reservation not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Reservation deleted successfully' });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete data' }, { status: 500 });
   }
 }
