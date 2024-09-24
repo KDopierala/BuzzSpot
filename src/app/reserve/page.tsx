@@ -104,9 +104,29 @@ const ReservePage: React.FC = () => {
   };
 
   const handleMarkerSelect = (location: LatLngExpression) => {
-    setSelectedLocation(location);
+    const selectedSpot = spotsData.find(
+      (spot) => JSON.stringify(spot.location) === JSON.stringify(location)
+    );
+  
+    if (selectedSpot &&   (selectedSpot.totalSpaces-selectedSpot.occupiesSpaces > 0)) {
+      // Ustawienie wybranego miejsca
+      setSelectedLocation(location);
+      setSpotname(selectedSpot.spotname);
+      setLatitude(selectedSpot.location[0]);
+      setLongitude(selectedSpot.location[1]);
+    } else {
+      // Resetowanie wyboru miejsca, jeśli brak dostępnych miejsc
+      setSelectedLocation(null);
+      setSpotname("");
+      setLatitude(null);
+      setLongitude(null);
+  
+      // Ewentualnie wyświetlenie powiadomienia (bez alertu)
+      alert("Brak dostępnych miejsc parkingowych w tej lokalizacji.");
+    }
   };
-
+  
+  
   const filterStartTime = (date: { getTime: () => number }) => {
     const isPastTime = new Date().getTime() > date.getTime();
     return !isPastTime;

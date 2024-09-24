@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { calculatePrice, calculateParkingDuration } from '@/utils/priceCaclc';
 import NavMenu from '@/components/Navigation'; // Adjust the path if necessary
+import { UUID } from 'crypto';
 
 interface Reservation {
-  id: string; // Dodajemy id rezerwacji
+  id: UUID;
   spotname: string;
   startDate: string;
   endDate: string;
@@ -43,7 +44,7 @@ const ReservationsPage = () => {
       });
   }, []);
 
-  const deleteReservation = async (id: string) => {
+  const deleteReservation = async (id: UUID) => {
     try {
       const response = await fetch(`/api/reservations`, {
         method: 'DELETE',
@@ -54,6 +55,7 @@ const ReservationsPage = () => {
       });
   
       if (response.ok) {
+        console.log(response)
         setReservations(reservations.filter(reservation => reservation.id !== id));
       } else {
         throw new Error("Błąd podczas usuwania rezerwacji");
@@ -62,8 +64,8 @@ const ReservationsPage = () => {
       console.error("Błąd:", error);
     } finally {
       console.log("finally block")
-      // window.location.href = "/settings";
-      setRefresh(!refresh);} // This forces a re-render
+      window.location.href = "/reservations";
+      }
   };
   
 
