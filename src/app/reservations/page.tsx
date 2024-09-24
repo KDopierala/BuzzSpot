@@ -19,7 +19,6 @@ const ReservationsPage = () => {
     direction: 'ascending'
   });
   const currentDate = new Date();
-  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     fetch("/api/reservations", {
