@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { calculatePrice, calculateParkingDuration } from "@/utils/priceCaclc";
-import NavMenu from '@/components/Navigation'; // Adjust the path if necessary
+import NavMenu from "@/components/Navigation";
+import Loader from "@/components/Loader";
+import apiClient from "@/lib/apiClient";
 
 interface Reservation {
   spotname: string;
@@ -12,40 +14,36 @@ interface Reservation {
 
 const HistoricalReservationsPage = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const currentDate = new Date(); // Aktualna data
+  const currentDate = new Date();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/reservations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Nie udało się pobrać danych z API");
-        }
-      })
-      .then((data: Reservation[]) => {
-        // Filtrowanie historycznych rezerwacji
+    const fetchReservations = async () => {
+      setLoading(true);
+      try {
+        const data: Reservation[] = await apiClient.get("/api/reservations");
         const historicalReservations = data.filter(
           (reservation) => new Date(reservation.endDate) <= currentDate
         );
         setReservations(historicalReservations);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Błąd podczas pobierania danych z API:", error);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold mb-4">
-          Historia rezerwacji
-        </h1>
+        <h1 className="text-2xl font-semibold mb-4">Historia rezerwacji</h1>
         <NavMenu />
       </div>
 

@@ -8,7 +8,9 @@ import DatePicker from "react-datepicker";
 import { LatLngExpression } from "leaflet";
 import ReservationPopup from "../../components/ReservationPopup";
 import { SpotData } from "@/types";
-import NavMenu from "@/components/Navigation"; // Adjust the path if necessary
+import NavMenu from "@/components/Navigation";
+import apiClient from '@/lib/apiClient';
+
 
 const Map = dynamic(() => import("../../components/Map"), { ssr: false });
 
@@ -28,27 +30,19 @@ const ReservePage: React.FC = () => {
 
 
   useEffect(() => {
-    fetch("/api/spots", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Nie udało się pobrać danych z API");
-        }
-      })
-      .then((data: SpotData[]) => {
+    const fetchSpots = async () => {
+      try {
+        const data: SpotData[] = await apiClient.get("/api/spots");
         console.log("Dane z API:", data);
         setSpotsData(data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Błąd podczas pobierania danych z API:", error);
-      });
+      }
+    };
+  
+    fetchSpots();
   }, []);
+  
 
   const handleConfirm = async () => {
     if (!selectedLocation) {
@@ -84,20 +78,9 @@ const ReservePage: React.FC = () => {
     };
 
     try {
-      const response = await fetch("/api/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reservationData),
-      });
-
-      if (response.ok) {
-        console.log("Reservation saved successfully");
-        setShowPopup(true);
-      } else {
-        console.error("Failed to save reservation");
-      }
+      await apiClient.post("/api/reservations", reservationData);
+      console.log("Reservation saved successfully");
+      setShowPopup(true);
     } catch (error) {
       console.error("Error saving reservation:", error);
     }
@@ -109,19 +92,16 @@ const ReservePage: React.FC = () => {
     );
   
     if (selectedSpot &&   (selectedSpot.totalSpaces-selectedSpot.occupiesSpaces > 0)) {
-      // Ustawienie wybranego miejsca
       setSelectedLocation(location);
       setSpotname(selectedSpot.spotname);
       setLatitude(selectedSpot.location[0]);
       setLongitude(selectedSpot.location[1]);
     } else {
-      // Resetowanie wyboru miejsca, jeśli brak dostępnych miejsc
       setSelectedLocation(null);
       setSpotname("");
       setLatitude(null);
       setLongitude(null);
   
-      // Ewentualnie wyświetlenie powiadomienia (bez alertu)
       alert("Brak dostępnych miejsc parkingowych w tej lokalizacji.");
     }
   };
