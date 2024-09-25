@@ -1,0 +1,18 @@
+/* Przenoszenie datepicker na środek ekranu */
+@media (max-width: 768px) {
+    .datepicker-popper {
+      position: relative;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 2002 !important; /* Wysoki priorytet */
+      width: 100vw; /* Dopasowanie szerokości na mobilnych */
+      height: 100vh;
+
+
+      .react-datepicker__triangle{
+        display: none;
+      }
+    }
+  }
+  

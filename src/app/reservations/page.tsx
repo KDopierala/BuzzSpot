@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { calculatePrice, calculateParkingDuration } from '@/utils/priceCaclc';
-import NavMenu from '@/components/Navigation'; // Adjust the path if necessary
+import NavMenu from '@/components/Navigation';
+import Loader from '@/components/Loader'
+import apiClient from '@/lib/apiClient';
 import { UUID } from 'crypto';
 
 interface Reservation {
@@ -19,52 +21,36 @@ const ReservationsPage = () => {
     direction: 'ascending'
   });
   const currentDate = new Date();
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/reservations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Nie udało się pobrać danych z API");
-        }
-      })
-      .then((data: Reservation[]) => {
+    const fetchReservations = async () => {
+      setLoading(true);
+      try {
+        const data: Reservation[] = await apiClient.get('/api/reservations');
         const ongoingReservations = data.filter(reservation => new Date(reservation.endDate) > currentDate);
         setReservations(ongoingReservations);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Błąd podczas pobierania danych z API:", error);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
   }, []);
 
   const deleteReservation = async (id: UUID) => {
+    setDeletingId(id);
     try {
-      const response = await fetch(`/api/reservations`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }), // Wysyłamy id rezerwacji, którą chcemy usunąć
-      });
-  
-      if (response.ok) {
-        console.log(response)
-        setReservations(reservations.filter(reservation => reservation.id !== id));
-      } else {
-        throw new Error("Błąd podczas usuwania rezerwacji");
-      }
+      await apiClient.delete('/api/reservations', { id });
+      setReservations(reservations.filter(reservation => reservation.id !== id));
     } catch (error) {
       console.error("Błąd:", error);
     } finally {
-      console.log("finally block")
-      window.location.href = "/reservations";
-      }
+      setDeletingId(null);
+    }
   };
   
 
@@ -99,6 +85,10 @@ const ReservationsPage = () => {
     }
     setSortConfig({ key, direction });
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="p-6">
@@ -146,9 +136,13 @@ const ReservationsPage = () => {
                   <td className="border p-2">{hours} godz. {minutes} min.</td>
                   <td className="border p-2">{price} zł</td>
                   <td className="border p-2">
-                    <button onClick={() => deleteReservation(reservation.id)} className="text-red-500">
-                      🗑️
-                    </button>
+                  {deletingId === reservation.id ? (
+                <Loader width='12' height='12'/>
+              ) : (
+                <button onClick={() => deleteReservation(reservation.id)}>
+                  🗑️
+                </button>
+              )}
                   </td>
                 </tr>
               );
