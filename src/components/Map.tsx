@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { SpotData, LocationData } from '@/types'; // Import interfejsów
+import { SpotData, LocationData } from '@/types';
+import {MAP_CENTER} from '@/constant';
 
 
-// Funkcja do tworzenia niestandardowej ikony
 const createCustomIcon = (availableSpaces: number, totalSpaces: number, imgSource: string, spotName: string) => {
   return new L.DivIcon({
     className: 'my-div-icon',
@@ -50,26 +50,25 @@ const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
         const mappedLocations: LocationData[] = data.map((element) => {
           const availableSpaces = element.totalSpaces - element.occupiesSpaces;
           const occupiedPercentage = (element.occupiesSpaces / element.totalSpaces) * 100;
-
+        
           let imgPath = '';
-
-          // Sprawdzenie zajętości miejsc
+        
           if (occupiedPercentage < 70) {
-            imgPath = 'FullSpace.png'; // Więcej niż 30% dostępnych miejsc
+            imgPath = 'FullSpace.png'; 
           } else if (occupiedPercentage >= 70 && occupiedPercentage < 100) {
-            imgPath = 'MediumSpaceAvailability.png'; // Pomiędzy 70% a 100% zajętych miejsc
+            imgPath = 'MediumSpaceAvailability.png'; 
           } else {
-            imgPath = 'NoSpace.png'; // 100% zajętych miejsc
+            imgPath = 'NoSpace.png';
           }
-
+        
           return {
-            location: [element.location[0], element.location[1]],
-            spotname: element.spotname,
-            totalSpaces: element.totalSpaces,
-            availableSpaces,
-            imgPath, // Zapisujemy ścieżkę do obrazka
+            ...element, 
+            availableSpaces, 
+            imgPath, 
+            location: [element.location[0], element.location[1]], 
           };
         });
+        
 
         setLocations(mappedLocations);
       } catch (error) {
@@ -81,7 +80,7 @@ const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
   }, []);
 
   return (
-    <MapContainer center={[51.935619, 15.506186]} zoom={14} className="h-full w-full">
+    <MapContainer center={MAP_CENTER} zoom={14} className="h-full w-full">
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -90,7 +89,7 @@ const Map: React.FC<MapProps> = ({ onMarkerSelect }) => {
         <Marker
           key={index}
           position={loc.location}
-          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces, loc.imgPath, loc.spotname)} // Użycie dynamicznej ścieżki
+          icon={createCustomIcon(loc.availableSpaces, loc.totalSpaces, loc.imgPath, loc.spotname)}
           eventHandlers={{
             click: () => onMarkerSelect(loc.location),
           }}

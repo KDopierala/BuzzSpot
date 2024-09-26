@@ -5,7 +5,7 @@ const apiClient = {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            ...(headers || {}), // Dodaj dodatkowe nagłówki, jeśli są
+            ...(headers || {}),
           },
         });
     
@@ -13,7 +13,7 @@ const apiClient = {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
     
-        return response.json(); // Parsuj odpowiedź jako JSON
+        return response.json(); 
       },
 
       async post(url: string, body: object, headers?: HeadersInit) {
@@ -21,7 +21,7 @@ const apiClient = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(headers || {}), // Dodaj dodatkowe nagłówki, jeśli są
+            ...(headers || {}), 
           },
           body: JSON.stringify(body),
         });
@@ -30,7 +30,7 @@ const apiClient = {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
     
-        return response.json(); // Parsuj odpowiedź jako JSON, jeśli to możliwe
+        return response.json();
       },
   
     async delete(url: string, body: object) {

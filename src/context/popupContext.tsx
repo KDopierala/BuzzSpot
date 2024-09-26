@@ -1,48 +1,43 @@
-// contexts/ReservationContext.tsx
-import React, { createContext, useContext, useState } from 'react';
+// context/PopupContext.tsx
 
-interface ReservationContextType {
-  showPopup: boolean;
-  spotname: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  openPopup: (spotname: string, startDate: Date, endDate: Date) => void;
-  closePopup: () => void;
+"use client";
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+
+interface PopupContextType {
+  isVisible: boolean;
+  popupContent: React.ReactNode | null;
+  showPopup: (content: React.ReactNode) => void;
+  hidePopup: () => void;
 }
 
-const ReservationContext = createContext<ReservationContextType | undefined>(undefined);
+const PopupContext = createContext<PopupContextType | undefined>(undefined);
 
-export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [showPopup, setShowPopup] = useState(false);
-  const [spotname, setSpotname] = useState<string>('');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+export const usePopup = () => {
+  const context = useContext(PopupContext);
+  if (!context) {
+    throw new Error('usePopup must be used within a PopupProvider');
+  }
+  return context;
+};
 
-  const openPopup = (spotname: string, startDate: Date, endDate: Date) => {
-    setSpotname(spotname);
-    setStartDate(startDate);
-    setEndDate(endDate);
-    setShowPopup(true);
+export const PopupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [popupContent, setPopupContent] = useState<React.ReactNode | null>(null);
+
+  const showPopup = (content: React.ReactNode) => {
+    setPopupContent(content);
+    setIsVisible(true);
   };
 
-  const closePopup = () => {
-    setShowPopup(false);
-    setSpotname('');
-    setStartDate(undefined);
-    setEndDate(undefined);
+  const hidePopup = () => {
+    console.log("hidePopup called"); 
+    setPopupContent(null);
+    setIsVisible(false);
   };
 
   return (
-    <ReservationContext.Provider value={{ showPopup, spotname, startDate, endDate, openPopup, closePopup }}>
+    <PopupContext.Provider value={{ isVisible, popupContent, showPopup, hidePopup }}>
       {children}
-    </ReservationContext.Provider>
+    </PopupContext.Provider>
   );
-};
-
-export const useReservationContext = () => {
-  const context = useContext(ReservationContext);
-  if (!context) {
-    throw new Error('useReservationContext must be used within a ReservationProvider');
-  }
-  return context;
 };

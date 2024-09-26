@@ -2,6 +2,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { PopupProvider } from "@/context/popupContext";
+import PopupComponent from "@/components/PopupComponent";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="container mx-auto p-6">{children}</div>
+        <PopupProvider>
+          <div className="container mx-auto p-6">{children}</div>
+          <PopupComponent />
+        </PopupProvider>
       </body>
     </html>
   );
