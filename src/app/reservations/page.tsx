@@ -87,7 +87,7 @@ const ReservationsPage = () => {
   };
 
   if (loading) {
-    return <Loader />;
+    return <Loader width={100} height={100}/>;
   }
 
   return (
@@ -137,7 +137,7 @@ const ReservationsPage = () => {
                   <td className="border p-2">{price} zł</td>
                   <td className="border p-2">
                   {deletingId === reservation.id ? (
-                <Loader width='12' height='12'/>
+                <Loader/>
               ) : (
                 <button onClick={() => deleteReservation(reservation.id)}>
                   🗑️
