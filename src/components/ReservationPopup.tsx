@@ -8,10 +8,9 @@ interface ReservationPopupProps {
   spotname: string;
   startDate: Date;
   endDate: Date;
-  onClose: () => void;
 }
 
-const ReservationPopup: React.FC<ReservationPopupProps> = ({ spotname, startDate, endDate, onClose }) => {
+const ReservationPopup: React.FC<ReservationPopupProps> = ({ spotname, startDate, endDate }) => {
   const { hours, minutes } = calculateParkingDuration(startDate, endDate);
   const price = calculatePrice(startDate, endDate);
 
