@@ -37,7 +37,7 @@ const HistoricalReservationsPage = () => {
   }, []);
 
   if (loading) {
-    return <Loader />;
+    return <Loader width={100} height={100}/>;
   }
 
   return (

@@ -1,6 +1,7 @@
-"use client";
+"use client"
 
 import { useState, useEffect } from "react";
+import * as Yup from "yup";
 import dynamic from "next/dynamic";
 import "react-datepicker/dist/react-datepicker.css";
 import "leaflet/dist/leaflet.css";
@@ -14,19 +15,38 @@ import { usePopup } from '@/context/popupContext';
 
 const Map = dynamic(() => import("../../components/Map"), { ssr: false });
 
+const reservationSchema = Yup.object().shape({
+  startDate: Yup.date()
+    .required("Data rozpoczęcia jest wymagana")
+    .max(new Date(new Date().setFullYear(new Date().getFullYear() + 1)), "Nie można rezerować później niż rok w przód"),
+  endDate: Yup.date()
+    .required("Data zakończenia jest wymagana")
+    .min(Yup.ref('startDate'), "Data zakończenia musi być późniejsza niż data rozpoczęcia")
+    .test("is-within-a-month", "Data zakończenia musi być w ciągu miesiąca od daty rozpoczęcia", function(value) {
+      const { startDate } = this.parent;
+      if (startDate && value) {
+        const duration = (new Date(value).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24);
+        return duration <= 30; 
+      }
+      return true; 
+    }),
+  spotname: Yup.string().required("Nazwa miejsca jest wymagana"),
+  latitude: Yup.number().required("Szerokość geograficzna jest wymagana"),
+  longitude: Yup.number().required("Długość geograficzna jest wymagana"),
+});
+
+
+
 const ReservePage: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [selectedLocation, setSelectedLocation] =
-    useState<LatLngExpression | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LatLngExpression | null>(null);
   const [spotname, setSpotname] = useState<string>("");
   const [spotsData, setSpotsData] = useState<SpotData[]>([]);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const { showPopup, hidePopup } = usePopup();
-
-
-
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchSpots = async () => {
@@ -38,10 +58,8 @@ const ReservePage: React.FC = () => {
         console.error("Błąd podczas pobierania danych z API:", error);
       }
     };
-  
     fetchSpots();
   }, []);
-  
 
   const handleConfirm = async () => {
     if (!selectedLocation) {
@@ -50,8 +68,7 @@ const ReservePage: React.FC = () => {
     }
 
     const selectedSpot = spotsData.find(
-      (spot) =>
-        JSON.stringify(spot.location) === JSON.stringify(selectedLocation)
+      (spot) => JSON.stringify(spot.location) === JSON.stringify(selectedLocation)
     );
 
     if (!selectedSpot) {
@@ -60,33 +77,37 @@ const ReservePage: React.FC = () => {
     }
 
     setSpotname(selectedSpot.spotname);
-
-    if(selectedSpot){
-      setLatitude(selectedSpot.location[0])
-      setLongitude(selectedSpot.location[1])
-
-    }
+    setLatitude(selectedSpot.location[0]);
+    setLongitude(selectedSpot.location[1]);
 
     const reservationData = {
-      startDate: startDate?.toLocaleString(),
-      endDate: endDate?.toLocaleString(),
+      startDate: startDate,
+      endDate: endDate,
       spotname: selectedSpot.spotname,
-      Lat: latitude,
-      Long: longitude
+      latitude: selectedSpot.location[0],
+      longitude: selectedSpot.location[1],
     };
 
-    showPopup(        <ReservationPopup
-      spotname={spotname}
-      startDate={startDate!}
-      endDate={endDate!}
-      onClose={() => hidePopup}
-    />);
     try {
+      await reservationSchema.validate(reservationData, { abortEarly: false });
+      showPopup(
+        <ReservationPopup
+          spotname={spotname}
+          startDate={startDate!}
+          endDate={endDate!}
+          onClose={() => hidePopup()}
+        />
+      );
+
       await apiClient.post("/api/reservations", reservationData);
       console.log("Reservation saved successfully");
-
     } catch (error) {
-      console.error("Error saving reservation:", error);
+      if (error instanceof Yup.ValidationError) {
+        setValidationErrors(error.errors);
+        alert(error.errors.join('\n'));
+      } else {
+        console.error("Error saving reservation:", error);
+      }
     }
   };
 
@@ -94,8 +115,8 @@ const ReservePage: React.FC = () => {
     const selectedSpot = spotsData.find(
       (spot) => JSON.stringify(spot.location) === JSON.stringify(location)
     );
-  
-    if (selectedSpot &&   (selectedSpot.totalSpaces-selectedSpot.occupiesSpaces > 0)) {
+
+    if (selectedSpot && (selectedSpot.totalSpaces - selectedSpot.occupiesSpaces > 0)) {
       setSelectedLocation(location);
       setSpotname(selectedSpot.spotname);
       setLatitude(selectedSpot.location[0]);
@@ -105,12 +126,10 @@ const ReservePage: React.FC = () => {
       setSpotname("");
       setLatitude(null);
       setLongitude(null);
-  
       alert("Brak dostępnych miejsc parkingowych w tej lokalizacji.");
     }
   };
-  
-  
+
   const filterStartTime = (date: { getTime: () => number }) => {
     const isPastTime = new Date().getTime() > date.getTime();
     return !isPastTime;
@@ -188,6 +207,14 @@ const ReservePage: React.FC = () => {
         >
           Potwierdź rezerwację
         </button>
+
+        {validationErrors.length > 0 && (
+          <div className="text-red-600">
+            {validationErrors.map((error, index) => (
+              <p key={index}>{error}</p>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
