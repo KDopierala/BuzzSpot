@@ -6,11 +6,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import "leaflet/dist/leaflet.css";
 import DatePicker from "react-datepicker";
 import { LatLngExpression } from "leaflet";
-import ReservationPopup from "../../components/ReservationPopup";
+import ReservationPopup from "@/components/ReservationPopup";
 import { SpotData } from "@/types";
 import NavMenu from "@/components/Navigation";
 import apiClient from '@/lib/apiClient';
-
+import { usePopup } from '@/context/popupContext';
 
 const Map = dynamic(() => import("../../components/Map"), { ssr: false });
 
@@ -19,12 +19,11 @@ const ReservePage: React.FC = () => {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [selectedLocation, setSelectedLocation] =
     useState<LatLngExpression | null>(null);
-  const [showPopup, setShowPopup] = useState(false);
   const [spotname, setSpotname] = useState<string>("");
   const [spotsData, setSpotsData] = useState<SpotData[]>([]);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  
+  const { showPopup, hidePopup } = usePopup();
 
 
 
@@ -72,15 +71,20 @@ const ReservePage: React.FC = () => {
       startDate: startDate?.toLocaleString(),
       endDate: endDate?.toLocaleString(),
       spotname: selectedSpot.spotname,
-      // location: selectedLocation,
       Lat: latitude,
       Long: longitude
     };
 
+    showPopup(        <ReservationPopup
+      spotname={spotname}
+      startDate={startDate!}
+      endDate={endDate!}
+      onClose={() => hidePopup}
+    />);
     try {
       await apiClient.post("/api/reservations", reservationData);
       console.log("Reservation saved successfully");
-      setShowPopup(true);
+
     } catch (error) {
       console.error("Error saving reservation:", error);
     }
@@ -185,22 +189,6 @@ const ReservePage: React.FC = () => {
           Potwierdź rezerwację
         </button>
       </div>
-
-      {showPopup && startDate && endDate ? (
-        <ReservationPopup
-          spotname={spotname}
-          startDate={startDate}
-          endDate={endDate}
-          onClose={() => setShowPopup(false)}
-        />
-      ) : (
-        !startDate ||
-        (!endDate && (
-          <div className="text-red-500">
-            Proszę wybrać datę rozpoczęcia i zakończenia rezerwacji
-          </div>
-        ))
-      )}
     </div>
   );
 };
