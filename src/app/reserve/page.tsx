@@ -84,8 +84,8 @@ const ReservePage: React.FC = () => {
       startDate: startDate,
       endDate: endDate,
       spotname: selectedSpot.spotname,
-      latitude: selectedSpot.location[0],
-      longitude: selectedSpot.location[1],
+      latitude: latitude,
+      longitude: longitude,
     };
 
     try {
@@ -95,7 +95,6 @@ const ReservePage: React.FC = () => {
           spotname={spotname}
           startDate={startDate!}
           endDate={endDate!}
-          onClose={() => hidePopup()}
         />
       );
 
